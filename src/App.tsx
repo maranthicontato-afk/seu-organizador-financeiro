@@ -17,7 +17,9 @@ import {
   TrendingDown,
   ChevronRight,
   CheckCircle2,
-  Circle
+  Circle,
+  User,
+  Camera
 } from 'lucide-react';
 import { Screen, Transaction, TransactionType, DayPlan, UserPlan, PLANS_DATA, CATEGORIES, FEEDBACK_CATEGORIES } from './types';
 
@@ -25,7 +27,9 @@ export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('HOME');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [activePlan, setActivePlan] = useState<UserPlan | null>(null);
-  const [goal, setGoal] = useState<number>(2000); // Exemplo de meta
+  const [goal, setGoal] = useState<number>(2000); 
+  const [userName, setUserName] = useState<string>('Usuário');
+  const [userPhoto, setUserPhoto] = useState<string>('https://picsum.photos/seed/user/200/200');
 
   // Inicialização e Carregamento do LocalStorage
   useEffect(() => {
@@ -34,6 +38,15 @@ export default function App() {
 
     const savedPlan = localStorage.getItem('activePlan');
     if (savedPlan) setActivePlan(JSON.parse(savedPlan));
+
+    const savedGoal = localStorage.getItem('goal');
+    if (savedGoal) setGoal(Number(savedGoal));
+
+    const savedName = localStorage.getItem('userName');
+    if (savedName) setUserName(savedName);
+
+    const savedPhoto = localStorage.getItem('userPhoto');
+    if (savedPhoto) setUserPhoto(savedPhoto);
   }, []);
 
   // Persistência
@@ -44,6 +57,18 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('activePlan', JSON.stringify(activePlan));
   }, [activePlan]);
+
+  useEffect(() => {
+    localStorage.setItem('goal', goal.toString());
+  }, [goal]);
+
+  useEffect(() => {
+    localStorage.setItem('userName', userName);
+  }, [userName]);
+
+  useEffect(() => {
+    localStorage.setItem('userPhoto', userPhoto);
+  }, [userPhoto]);
 
   const totalSpent = transactions.filter(t => t.type === 'EXPENSE').reduce((acc, curr) => acc + curr.amount, 0);
   const totalIncome = transactions.filter(t => t.type === 'INCOME').reduce((acc, curr) => acc + curr.amount, 0);
@@ -123,6 +148,16 @@ export default function App() {
           messages={messages}
           onBack={() => setCurrentScreen('HOME')} 
         />;
+      case 'PROFILE':
+        return <ProfileScreen 
+          name={userName}
+          photo={userPhoto}
+          goal={goal}
+          onUpdateName={setUserName}
+          onUpdatePhoto={setUserPhoto}
+          onUpdateGoal={setGoal}
+          onBack={() => setCurrentScreen('HOME')}
+        />;
       default:
         return null;
     }
@@ -146,11 +181,12 @@ export default function App() {
         </AnimatePresence>
 
         {/* Bottom Navigation */}
-        <nav className="bg-white/40 backdrop-blur-md border-t border-white/20 px-8 py-4 flex justify-between items-center z-50">
-          <NavButton active={currentScreen === 'HOME'} icon={<Home size={22} />} onClick={() => setCurrentScreen('HOME')} />
-          <NavButton active={currentScreen === 'LIST'} icon={<List size={22} />} onClick={() => setCurrentScreen('LIST')} />
-          <NavButton active={currentScreen === 'PLAN' || currentScreen === 'PLAN_SELECTION'} icon={<Calendar size={22} />} onClick={() => setCurrentScreen('PLAN')} />
-          <NavButton active={currentScreen === 'FEEDBACK'} icon={<MessageSquare size={22} />} onClick={() => setCurrentScreen('FEEDBACK')} />
+        <nav className="bg-white/40 backdrop-blur-md border-t border-white/20 px-6 py-4 flex justify-between items-center z-50">
+          <NavButton active={currentScreen === 'HOME'} icon={<Home size={20} />} onClick={() => setCurrentScreen('HOME')} />
+          <NavButton active={currentScreen === 'LIST'} icon={<List size={20} />} onClick={() => setCurrentScreen('LIST')} />
+          <NavButton active={currentScreen === 'PLAN' || currentScreen === 'PLAN_SELECTION'} icon={<Calendar size={20} />} onClick={() => setCurrentScreen('PLAN')} />
+          <NavButton active={currentScreen === 'FEEDBACK'} icon={<MessageSquare size={20} />} onClick={() => setCurrentScreen('FEEDBACK')} />
+          <NavButton active={currentScreen === 'PROFILE'} icon={<User size={20} />} onClick={() => setCurrentScreen('PROFILE')} />
         </nav>
       </div>
     </div>
@@ -546,6 +582,100 @@ function FeedbackScreen({ messages, onBack }: { messages: string[]; onBack: () =
         
         {messages.length === 0 && (
           <p className="text-center text-xs font-bold text-neutral-400 uppercase tracking-widest">Aguardando novos dados...</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ProfileScreen({ name, photo, goal, onUpdateName, onUpdatePhoto, onUpdateGoal, onBack }: {
+  name: string;
+  photo: string;
+  goal: number;
+  onUpdateName: (n: string) => void;
+  onUpdatePhoto: (p: string) => void;
+  onUpdateGoal: (g: number) => void;
+  onBack: () => void;
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [tempName, setTempName] = useState(name);
+  const [tempGoal, setTempGoal] = useState(goal.toString());
+
+  const handleSave = () => {
+    onUpdateName(tempName);
+    onUpdateGoal(Number(tempGoal));
+    setIsEditing(false);
+  };
+
+  return (
+    <div className="flex-1 flex flex-col">
+      <header className="p-6 text-center font-bold text-lg text-neutral-600 tracking-tight relative shrink-0">
+        <button onClick={onBack} className="absolute left-6 top-1/2 -translate-y-1/2 p-2 text-neutral-400 border border-white/60 bg-white/40 rounded-xl">
+          <ChevronLeft size={20} />
+        </button>
+        Perfil
+      </header>
+
+      <div className="p-6 flex-1 overflow-y-auto">
+        <div className="flex flex-col items-center mb-8">
+          <div className="relative group">
+            <div className="w-28 h-28 rounded-full border-4 border-white/60 overflow-hidden shadow-xl">
+              <img src={photo} alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+            </div>
+            <button 
+              className="absolute bottom-0 right-0 p-2 bg-[#99F6E4] rounded-full border border-white shadow-lg text-[#0D9488] active:scale-95 transition-all"
+              onClick={() => {
+                const newPhoto = prompt("Insira a URL da foto:", photo);
+                if (newPhoto) onUpdatePhoto(newPhoto);
+              }}
+            >
+              <Camera size={16} />
+            </button>
+          </div>
+          
+          {isEditing ? (
+            <input 
+              value={tempName}
+              onChange={(e) => setTempName(e.target.value)}
+              className="mt-4 text-center text-xl font-black text-neutral-700 bg-white/40 border border-white/60 rounded-xl px-4 py-2 w-full focus:outline-none"
+            />
+          ) : (
+            <h2 className="mt-4 text-xl font-black text-neutral-700 uppercase tracking-tight">{name}</h2>
+          )}
+        </div>
+
+        <div className="space-y-4 mb-8">
+          <div className="bg-white/30 backdrop-blur-md p-6 rounded-3xl border border-white/40 shadow-sm">
+            <div className="text-[10px] text-neutral-500 uppercase tracking-widest font-black mb-1">META DESEJÁVEL</div>
+            {isEditing ? (
+              <div className="flex items-center">
+                <span className="text-xl font-black text-neutral-700 mr-2">R$</span>
+                <input 
+                  type="number"
+                  value={tempGoal}
+                  onChange={(e) => setTempGoal(e.target.value)}
+                  className="bg-transparent border-none focus:outline-none text-xl font-black text-neutral-700 w-full"
+                />
+              </div>
+            ) : (
+              <p className="text-2xl font-black text-neutral-700">R$ {goal.toLocaleString('pt-BR')}</p>
+            )}
+          </div>
+        </div>
+
+        <button 
+          onClick={isEditing ? handleSave : () => setIsEditing(true)}
+          className="w-full bg-[#BAE6FD] text-[#0369A1] py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-lg active:scale-95 transition-all border border-white/40"
+        >
+          {isEditing ? 'SALVAR ALTERAÇÕES' : 'EDITAR PERFIL'}
+        </button>
+
+        {!isEditing && (
+          <div className="mt-6 text-center">
+            <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest leading-loose">
+              Seu progresso é salvo automaticamente<br/>em seu dispositivo.
+            </p>
+          </div>
         )}
       </div>
     </div>

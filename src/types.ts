@@ -26,7 +26,7 @@ export interface UserPlan {
   days: DayPlan[];
 }
 
-export type Screen = 'HOME' | 'ADD_EXPENSE' | 'LIST' | 'PLAN' | 'FEEDBACK' | 'PLAN_SELECTION';
+export type Screen = 'HOME' | 'ADD_EXPENSE' | 'LIST' | 'PLAN' | 'FEEDBACK' | 'PLAN_SELECTION' | 'PROFILE';
 
 export const PLANS_DATA = [
   {
