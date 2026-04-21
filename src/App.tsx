@@ -184,48 +184,41 @@ function HomeScreen({ totalSpent, totalIncome, goal, balance, onNavigate }: {
   return (
     <div className="flex-1 flex flex-col">
       <header className="p-6 text-center font-bold text-lg text-neutral-600 tracking-tight shrink-0">
-        Início
+        INÍCIO
       </header>
       
       <div className="px-6 pb-6 flex flex-col flex-1 overflow-y-auto">
         <div className="space-y-3 mb-8">
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-[#99F6E4]/50 backdrop-blur-md p-5 rounded-2xl border border-white/40">
-              <div className="text-[9px] text-neutral-500 uppercase tracking-widest font-bold mb-2">Total Entrada</div>
-              <p className="text-xl font-bold text-[#0D9488]">R$ {totalIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+            <div className="bg-[#99F6E4]/50 backdrop-blur-md p-5 rounded-3xl border border-white/40 shadow-sm">
+              <div className="text-[10px] text-neutral-500 uppercase tracking-widest font-black mb-1">ENTRADA</div>
+              <p className="text-xl font-black text-[#0D9488]">R$ {totalIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
             </div>
-            <div className="bg-[#BAE6FD]/50 backdrop-blur-md p-5 rounded-2xl border border-white/40">
-              <div className="text-[9px] text-neutral-500 uppercase tracking-widest font-bold mb-2">Total Saída</div>
-              <p className="text-xl font-bold text-[#0369A1]">R$ {totalSpent.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+            <div className="bg-[#BAE6FD]/50 backdrop-blur-md p-5 rounded-3xl border border-white/40 shadow-sm">
+              <div className="text-[10px] text-neutral-500 uppercase tracking-widest font-black mb-1">SAÍDA</div>
+              <p className="text-xl font-black text-[#0369A1]">R$ {totalSpent.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
             </div>
           </div>
 
-          <div className="bg-white/30 backdrop-blur-md p-6 rounded-2xl border border-white/40">
-            <div className="text-[9px] text-neutral-500 uppercase tracking-widest font-bold mb-2">Meta</div>
-            <p className="text-2xl font-bold text-neutral-700">R$ {goal.toLocaleString('pt-BR')}</p>
+          <div className="bg-white/30 backdrop-blur-md p-6 rounded-3xl border border-white/40 shadow-sm">
+            <div className="text-[10px] text-neutral-500 uppercase tracking-widest font-black mb-1">META</div>
+            <p className="text-2xl font-black text-neutral-700">R$ {goal.toLocaleString('pt-BR')}</p>
           </div>
 
-          <div className="bg-white/30 backdrop-blur-md p-6 rounded-2xl border border-white/40">
-            <div className="text-[9px] text-neutral-500 uppercase tracking-widest font-bold mb-2">Saldo</div>
-            <p className={`text-2xl font-bold ${balance < 0 ? 'text-[#0369A1]' : 'text-[#0D9488]'}`}>
+          <div className="bg-white/30 backdrop-blur-md p-6 rounded-3xl border border-white/40 shadow-sm">
+            <div className="text-[10px] text-neutral-500 uppercase tracking-widest font-black mb-1">SALDO</div>
+            <p className={`text-2xl font-black ${balance < 0 ? 'text-[#0369A1]' : 'text-[#0D9488]'}`}>
               R$ {balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </p>
           </div>
         </div>
 
-        <div className="mt-auto space-y-3">
+        <div className="mt-auto">
           <button 
             onClick={() => onNavigate('ADD_EXPENSE')}
-            className="w-full bg-gradient-to-r from-[#BAE6FD] to-[#99F6E4] text-[#0369A1] py-4 px-4 rounded-2xl font-bold text-[11px] uppercase tracking-widest shadow-lg shadow-blue-200/50 active:scale-95 transition-all border border-white/40"
+            className="w-full bg-gradient-to-r from-[#BAE6FD] to-[#99F6E4] text-[#0369A1] py-5 px-4 rounded-3xl font-black text-[13px] uppercase tracking-[0.2em] shadow-xl shadow-blue-200/50 active:scale-95 transition-all border border-white/40"
           >
-            + Adicionar registro
-          </button>
-
-          <button 
-            onClick={() => onNavigate('PLAN')}
-            className="w-full bg-white/40 backdrop-blur-md text-[#0D9488] border border-white/60 py-4 px-4 rounded-2xl font-bold text-[11px] uppercase tracking-widest active:scale-95 transition-all shadow-sm"
-          >
-            Plano 30 dias
+            ADICIONAR
           </button>
         </div>
       </div>
@@ -266,25 +259,25 @@ function AddTransactionScreen({ onAdd, onBack }: { onAdd: (e: any) => void; onBa
               <button
                 type="button"
                 onClick={() => setType('EXPENSE')}
-                className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all ${
+                className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${
                   type === 'EXPENSE' ? 'bg-[#BAE6FD] text-[#0369A1] shadow-sm border border-white/60' : 'text-neutral-400 hover:text-neutral-600'
                 }`}
               >
-                Saída
+                SAÍDA
               </button>
               <button
                 type="button"
                 onClick={() => setType('INCOME')}
-                className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all ${
+                className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${
                   type === 'INCOME' ? 'bg-[#99F6E4] text-[#0D9488] shadow-sm border border-white/60' : 'text-neutral-400 hover:text-neutral-600'
                 }`}
               >
-                Entrada
+                ENTRADA
               </button>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-neutral-500 ml-1">Valor</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-neutral-500 ml-1">VALOR</label>
               <div className="bg-white/40 backdrop-blur-md border border-white/60 rounded-2xl p-4 shadow-sm">
                  <input 
                   type="text" 
@@ -292,19 +285,19 @@ function AddTransactionScreen({ onAdd, onBack }: { onAdd: (e: any) => void; onBa
                   placeholder="R$ 0,00"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full bg-transparent border-none focus:outline-none text-lg font-bold text-neutral-700 placeholder:text-neutral-300"
+                  className="w-full bg-transparent border-none focus:outline-none text-lg font-black text-neutral-700 placeholder:text-neutral-300"
                   required
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-neutral-500 ml-1">Categoria</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-neutral-500 ml-1">CATEGORIA</label>
               <div className="bg-white/40 backdrop-blur-md border border-white/60 rounded-2xl p-4 shadow-sm relative">
                 <select 
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-transparent border-none focus:outline-none text-sm font-bold text-neutral-600 appearance-none bg-none"
+                  className="w-full bg-transparent border-none focus:outline-none text-sm font-black text-neutral-600 appearance-none bg-none"
                 >
                   {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
@@ -315,13 +308,13 @@ function AddTransactionScreen({ onAdd, onBack }: { onAdd: (e: any) => void; onBa
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-neutral-500 ml-1">Observação</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-neutral-500 ml-1">OBSERVAÇÃO</label>
               <div className="bg-white/40 backdrop-blur-md border border-white/60 rounded-2xl p-4 shadow-sm">
                 <textarea 
                   placeholder="No que você pensou?"
                   value={observation}
                   onChange={(e) => setObservation(e.target.value)}
-                  className="w-full bg-transparent border-none focus:outline-none text-sm font-medium text-neutral-600 h-24 resize-none placeholder:text-neutral-300"
+                  className="w-full bg-transparent border-none focus:outline-none text-sm font-bold text-neutral-600 h-24 resize-none placeholder:text-neutral-300"
                 />
               </div>
             </div>
