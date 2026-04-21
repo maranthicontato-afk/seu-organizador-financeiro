@@ -74,49 +74,31 @@ export const CATEGORIES = [
   'Outros'
 ];
 
+export interface Tip {
+  title: string;
+  message: string;
+  detail: string;
+  type: 'motivational' | 'warning' | 'info';
+}
+
 export const FEEDBACK_CATEGORIES = {
   CONSCIENCE: [
-    "Você realmente precisa gastar hoje?",
-    "Esse gasto te aproxima ou te afasta do seu objetivo?",
-    "Pare 10 segundos antes de gastar."
-  ],
+    { title: "Momento de Reflexão", message: "Você realmente precisa gastar hoje?", detail: "A impulsividade é a maior inimiga da economia. Antes de passar o cartão, se pergunte: 'Eu preciso disso agora ou posso esperar 24 horas?'", type: 'info' },
+    { title: "Foco no Alvo", message: "Esse gasto te aproxima ou te afasta do seu objetivo?", detail: "Cada real gasto em algo supérfluo é um real a menos na sua liberdade financeira futura.", type: 'info' },
+    { title: "Regra dos 10 Segundos", message: "Pare 10 segundos antes de gastar.", detail: "Respire fundo. Esse pequeno intervalo rompe o ciclo do impulso e ativa sua mente racional.", type: 'info' }
+  ] as Tip[],
   RISK: [
-    "Você já gastou mais do que o ideal hoje 😬",
-    "Se continuar assim, vai faltar dinheiro antes do fim do mês",
-    "Cuidado: seus gastos estão aumentando"
-  ],
+    { title: "Alerta de Limite", message: "Você já gastou mais do que o ideal hoje 😬", detail: "Seus gastos diários ultrapassaram a média planejada. Tente compensar gastando zero amanhã.", type: 'warning' },
+    { title: "Atenção ao Mês", message: "Se continuar assim, vai faltar dinheiro no fim do mês", detail: "O ritmo atual de gastos está insustentável para sua meta atual. Hora de puxar o freio.", type: 'warning' }
+  ] as Tip[],
   MOTIVATIONAL: [
-    "Você está fazendo melhor que ontem 👏",
-    "Pequenos controles geram grandes resultados",
-    "Continue assim — você está no caminho certo"
-  ],
-  GOAL: [
-    "Seu objetivo é fazer o dinheiro sobrar — não esqueça disso",
-    "Cada escolha hoje impacta seu fim de mês",
-    "Você quer controle ou arrependimento?"
-  ],
-  PROGRESS: [
-    "Você está no controle",
-    "Hoje é um bom dia para economizar",
-    "Cada economia conta!"
-  ],
-  ANTI_PROCRASTINATION: [
-    "Você ainda não registrou seus gastos hoje",
-    "1 minuto agora pode te salvar no fim do mês",
-    "Não deixe pra depois — registre agora"
-  ],
-  TIME_BASED: {
-    MORNING: [
-      "Hoje é um novo dia pra controlar seu dinheiro",
-      "Defina um limite de gasto hoje"
-    ],
-    AFTERNOON: [
-      "Cuidado com gastos impulsivos agora",
-      "Você já registrou seus gastos de hoje?"
-    ],
-    EVENING: [
-      "Revise seus gastos antes de dormir",
-      "Você controlou bem seu dinheiro hoje?"
-    ]
-  }
+    { title: "Evolução Constante", message: "Você está fazendo melhor que ontem 👏", detail: "A consistência é mais importante que o valor. Continue registrando tudo com disciplina.", type: 'motivational' },
+    { title: "Pequeno Grande Passo", message: "Pequenos controles geram grandes resultados", detail: "Não despreze as moedas. A riqueza é construída com a soma de pequenas economias diárias.", type: 'motivational' }
+  ] as Tip[],
+  DAILY_TIPS: [
+    { title: "Dica do Dia: Café", message: "Que tal economizar no cafezinho hoje?", detail: "O gasto 'formiga' como café na rua pode somar mais de R$ 150 no fim do mês. Tente levar de casa!", type: 'info' },
+    { title: "Dica do Dia: Marmita", message: "Levar almoço economiza tempo e dinheiro", detail: "Comer fora é um dos maiores ralos de dinheiro. Cozinhar em casa é saúde física e financeira.", type: 'motivational' },
+    { title: "Dica do Dia: Assinaturas", message: "Revise seus streamings e assinaturas", detail: "Muitas vezes pagamos por serviços que não usamos. Cancele o que não é essencial hoje.", type: 'warning' },
+    { title: "Dica do Dia: Listas", message: "Nunca vá ao mercado sem lista", detail: "Sem lista, você compra o que vê, não o que precisa. Planeje suas compras e economize até 30%.", type: 'info' }
+  ] as Tip[]
 };

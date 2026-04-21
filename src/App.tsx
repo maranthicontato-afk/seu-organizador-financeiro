@@ -19,9 +19,14 @@ import {
   CheckCircle2,
   Circle,
   User,
-  Camera
+  Camera,
+  X,
+  Lightbulb,
+  Info,
+  AlertTriangle,
+  Award
 } from 'lucide-react';
-import { Screen, Transaction, TransactionType, DayPlan, UserPlan, PLANS_DATA, CATEGORIES, FEEDBACK_CATEGORIES } from './types';
+import { Screen, Transaction, TransactionType, DayPlan, UserPlan, PLANS_DATA, CATEGORIES, FEEDBACK_CATEGORIES, Tip } from './types';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('HOME');
@@ -72,7 +77,7 @@ export default function App() {
 
   const totalSpent = transactions.filter(t => t.type === 'EXPENSE').reduce((acc, curr) => acc + curr.amount, 0);
   const totalIncome = transactions.filter(t => t.type === 'INCOME').reduce((acc, curr) => acc + curr.amount, 0);
-  const balance = goal + totalIncome - totalSpent;
+  const balance = totalIncome - totalSpent;
 
   const addTransaction = (transaction: Omit<Transaction, 'id' | 'date'>) => {
     const newTransaction: Transaction = {
@@ -237,15 +242,15 @@ function HomeScreen({ totalSpent, totalIncome, goal, balance, onNavigate }: {
           </div>
 
           <div className="bg-white/30 backdrop-blur-md p-6 rounded-3xl border border-white/40 shadow-sm">
-            <div className="text-[10px] text-neutral-500 uppercase tracking-widest font-black mb-1">META</div>
-            <p className="text-2xl font-black text-neutral-700">R$ {goal.toLocaleString('pt-BR')}</p>
+            <div className="text-[10px] text-neutral-500 uppercase tracking-widest font-black mb-1">SALDO</div>
+            <p className={`text-2xl font-black ${balance < 0 ? 'text-red-500' : 'text-emerald-500'}`}>
+              R$ {balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </p>
           </div>
 
           <div className="bg-white/30 backdrop-blur-md p-6 rounded-3xl border border-white/40 shadow-sm">
-            <div className="text-[10px] text-neutral-500 uppercase tracking-widest font-black mb-1">SALDO</div>
-            <p className={`text-2xl font-black ${balance < 0 ? 'text-[#0369A1]' : 'text-[#0D9488]'}`}>
-              R$ {balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </p>
+            <div className="text-[10px] text-neutral-500 uppercase tracking-widest font-black mb-1">META</div>
+            <p className="text-2xl font-black text-neutral-700">R$ {goal.toLocaleString('pt-BR')}</p>
           </div>
         </div>
 
@@ -511,51 +516,46 @@ function PlanDetailScreen({ plan, onToggle, onReset, onBack }: { plan: UserPlan;
   );
 }
 
-function getDynamicFeedback(transactions: Transaction[], goal: number, balance: number): string[] {
-  const result: string[] = [];
+function getDynamicFeedback(transactions: Transaction[], goal: number, balance: number): Tip[] {
+  const result: Tip[] = [];
   const now = new Date();
-  const hour = now.getHours();
   const todayStr = now.toISOString().split('T')[0];
+  const dayOfMonth = now.getDate();
   
   const transactionsToday = transactions.filter(t => t.date.startsWith(todayStr));
   const spentToday = transactionsToday.filter(t => t.type === 'EXPENSE').reduce((acc, curr) => acc + curr.amount, 0);
   
-  // 1. Time Based
-  if (hour >= 5 && hour < 12) {
-    result.push(FEEDBACK_CATEGORIES.TIME_BASED.MORNING[Math.floor(Math.random() * FEEDBACK_CATEGORIES.TIME_BASED.MORNING.length)]);
-  } else if (hour >= 12 && hour < 18) {
-    result.push(FEEDBACK_CATEGORIES.TIME_BASED.AFTERNOON[Math.floor(Math.random() * FEEDBACK_CATEGORIES.TIME_BASED.AFTERNOON.length)]);
-  } else {
-    result.push(FEEDBACK_CATEGORIES.TIME_BASED.EVENING[Math.floor(Math.random() * FEEDBACK_CATEGORIES.TIME_BASED.EVENING.length)]);
-  }
+  // 1. Daily Tip (Fixed based on day of month to simulate "daily pop up")
+  const dailyTipIndex = dayOfMonth % FEEDBACK_CATEGORIES.DAILY_TIPS.length;
+  result.push(FEEDBACK_CATEGORIES.DAILY_TIPS[dailyTipIndex]);
 
   // 2. Behavioral
-  if (transactionsToday.length === 0) {
-    result.push(FEEDBACK_CATEGORIES.ANTI_PROCRASTINATION[Math.floor(Math.random() * FEEDBACK_CATEGORIES.ANTI_PROCRASTINATION.length)]);
-  } else if (spentToday > goal / 30) { // Limit for a day assuming monthly goal
+  if (spentToday > goal / 30) { 
     result.push(FEEDBACK_CATEGORIES.RISK[Math.floor(Math.random() * FEEDBACK_CATEGORIES.RISK.length)]);
   } else if (balance > 0) {
     result.push(FEEDBACK_CATEGORIES.MOTIVATIONAL[Math.floor(Math.random() * FEEDBACK_CATEGORIES.MOTIVATIONAL.length)]);
-  }
-
-  // 3. Goal/Conscience
-  if (Math.random() > 0.5) {
-    result.push(FEEDBACK_CATEGORIES.GOAL[Math.floor(Math.random() * FEEDBACK_CATEGORIES.GOAL.length)]);
   } else {
     result.push(FEEDBACK_CATEGORIES.CONSCIENCE[Math.floor(Math.random() * FEEDBACK_CATEGORIES.CONSCIENCE.length)]);
   }
 
-  // Specific Savings Feedback
+  // 3. Dynamic Status
   if (spentToday > 0) {
-    result.push(`Você está no controle hoje. Já registrou R$ ${spentToday.toLocaleString('pt-BR')} em gastos.`);
+    result.push({
+      title: "Resumo do Dia",
+      message: `Você já registrou R$ ${spentToday.toLocaleString('pt-BR')} em gastos hoje.`,
+      detail: "Manter o registro em tempo real é o segredo para não perder o controle. Cada centavo anotado é uma vitória contra o esquecimento.",
+      type: 'info'
+    } as Tip);
   }
 
-  return [...new Set(result)].slice(0, 3); // Return up to 3 unique messages
+  return result.slice(0, 3);
 }
 
-function FeedbackScreen({ messages, onBack }: { messages: string[]; onBack: () => void }) {
+function FeedbackScreen({ messages, onBack }: { messages: Tip[]; onBack: () => void }) {
+  const [selectedTip, setSelectedTip] = useState<Tip | null>(null);
+
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col relative">
       <header className="p-6 text-center font-bold text-lg text-neutral-600 tracking-tight relative shrink-0">
         <button onClick={onBack} className="absolute left-6 top-1/2 -translate-y-1/2 p-2 text-neutral-400 border border-white/60 bg-white/40 rounded-xl">
           <ChevronLeft size={20} />
@@ -564,19 +564,26 @@ function FeedbackScreen({ messages, onBack }: { messages: string[]; onBack: () =
       </header>
 
       <div className="p-6 flex-1 flex flex-col justify-center space-y-5">
-        {messages.map((msg, i) => (
+        {messages.map((tip, i) => (
           <motion.div 
             key={i}
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
+            onClick={() => setSelectedTip(tip)}
             className={`${
-              i === 0 ? 'bg-white/40 border border-white/60 text-neutral-700' : 
-              i === 1 ? 'bg-[#BAE6FD]/50 border border-[#7DD3FC] text-[#0369A1]' : 
-              'bg-[#99F6E4]/50 border border-[#5EEAD4] text-[#0D9488]'
-            } p-6 rounded-[24px] text-[13px] leading-relaxed font-bold text-center shadow-sm backdrop-blur-sm`}
+              tip.type === 'info' ? 'bg-[#99F6E4]/50 border border-[#5EEAD4] text-[#0D9488]' : 
+              tip.type === 'warning' ? 'bg-[#FECDD3]/50 border border-[#FDA4AF] text-[#9F1239]' : 
+              'bg-[#BAE6FD]/50 border border-[#7DD3FC] text-[#0369A1]'
+            } p-6 rounded-[24px] shadow-sm backdrop-blur-sm cursor-pointer hover:scale-[1.02] active:scale-95 transition-all flex flex-col items-center text-center`}
           >
-            {msg}
+            <div className="mb-2 p-2 rounded-full bg-white/40">
+              {tip.type === 'info' && <Lightbulb size={20} />}
+              {tip.type === 'warning' && <AlertTriangle size={20} />}
+              {tip.type === 'motivational' && <Award size={20} />}
+            </div>
+            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] mb-1 opacity-70">{tip.title}</h3>
+            <p className="text-[13px] leading-relaxed font-bold">{tip.message}</p>
           </motion.div>
         ))}
         
@@ -584,6 +591,60 @@ function FeedbackScreen({ messages, onBack }: { messages: string[]; onBack: () =
           <p className="text-center text-xs font-bold text-neutral-400 uppercase tracking-widest">Aguardando novos dados...</p>
         )}
       </div>
+
+      <AnimatePresence>
+        {selectedTip && (
+          <div className="absolute inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedTip(null)}
+              className="absolute inset-0 bg-neutral-900/40 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-white rounded-[40px] p-8 w-full max-w-sm relative shadow-2xl border border-white/60 text-center"
+            >
+              <button 
+                onClick={() => setSelectedTip(null)}
+                className="absolute top-6 right-6 p-2 text-neutral-400 hover:text-neutral-600 transition-colors"
+              >
+                <X size={20} />
+              </button>
+
+              <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-6 ${
+                selectedTip.type === 'info' ? 'bg-[#99F6E4]/30 text-[#0D9488]' : 
+                selectedTip.type === 'warning' ? 'bg-[#FECDD3]/30 text-[#9F1239]' : 
+                'bg-[#BAE6FD]/30 text-[#0369A1]'
+              }`}>
+                {selectedTip.type === 'info' && <Lightbulb size={32} />}
+                {selectedTip.type === 'warning' && <AlertTriangle size={32} />}
+                {selectedTip.type === 'motivational' && <Award size={32} />}
+              </div>
+
+              <h3 className="text-xs font-black uppercase tracking-[0.3em] text-neutral-400 mb-2">{selectedTip.title}</h3>
+              <h2 className="text-xl font-black text-neutral-800 leading-tight mb-4">{selectedTip.message}</h2>
+              <p className="text-sm font-medium text-neutral-500 leading-relaxed">
+                {selectedTip.detail}
+              </p>
+              
+              <button 
+                onClick={() => setSelectedTip(null)}
+                className={`mt-8 w-full py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all active:scale-95 ${
+                  selectedTip.type === 'info' ? 'bg-[#99F6E4] text-[#0D9488]' : 
+                  selectedTip.type === 'warning' ? 'bg-[#FECDD3] text-[#9F1239]' : 
+                  'bg-[#BAE6FD] text-[#0369A1]'
+                }`}
+              >
+                ENTENDIDO
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
